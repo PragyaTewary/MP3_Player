@@ -129,5 +129,4 @@ add_song_menu.add_command(label= "Add One Song To Playlist", command= add_song)
 add_song_menu.add_command(label= "Add Many Songs To Playlist", command= add_many_songs)
 
 
-
 root.mainloop()
