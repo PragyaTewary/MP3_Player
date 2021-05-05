@@ -116,6 +116,22 @@ def add_many_songs():
  	
 
 
+# Remove one song from the playlist
+def remove_a_song():
+	# Delete currently selected song
+	List_of_songs.delete(ANCHOR)
+	#Stop music if it's playing
+	pygame.mixer.music.stop()
+
+
+# Remove all songs from the playlist
+def remove_all_songs():
+	# Delete all songs
+	List_of_songs.delete(0, END)
+	#Stop music if it's playing
+	pygame.mixer.music.stop()
+
+
 specify_font= font.Font(size=15)
 
 #Create Playlist box
@@ -154,10 +170,18 @@ root.config(menu = my_menu)
 # Add Song Menu
 add_song_menu = Menu(my_menu)
 my_menu.add_cascade(label= "Add Songs", menu=add_song_menu)
-add_song_menu.add_command(label= "Add One Song To Playlist", command= add_song)
-
+# Add One Song to Playlist
+add_song_menu.add_command(label= "Add one song to playlist", command= add_song)
 # Add Many Songs to Playlist
-add_song_menu.add_command(label= "Add Many Songs To Playlist", command= add_many_songs)
+add_song_menu.add_command(label= "Add many songs to playlist", command= add_many_songs)
+
+#Create Delete Song Menu
+remove_song_menu = Menu(my_menu)
+my_menu.add_cascade(label = "Remove Songs", menu= remove_song_menu)
+# Remove One Song from the Playlist
+remove_song_menu.add_command(label= "Delete a song from playlist", command= remove_a_song)
+# Remove Many Songs from the Playlist
+remove_song_menu.add_command(label= "Delete all songs from playlist", command= remove_all_songs)
 
 
 root.mainloop()
