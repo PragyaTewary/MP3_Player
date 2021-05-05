@@ -13,7 +13,7 @@ pygame.mixer.init()
 # Play selected song
 def play_the_song():
 	song = List_of_songs.get(ACTIVE)
-	song = f'D:/GUI/Music/{song}.mp3'
+	song = f'D:/MP3_PLAYER/GUI/Music/{song}.mp3'
 
 
 	pygame.mixer.music.load(song)
@@ -27,7 +27,6 @@ def stop_the_song():
 
 # Play the next song in the playlist
 def next_song():
-
 	# Get the current song tuple number
 	next_one = List_of_songs.curselection()
 	# Add one to the current song number
@@ -35,10 +34,62 @@ def next_song():
 	# Get song title from the playlist
 	curr_song = List_of_songs.get(next_one)
 	# Add directory structure and mp3 to song title  
-	curr_song = f'D:/GUI/Music/{curr_song}.mp3'
+	curr_song = f'D:/MP3_PLAYER/GUI/Music/{curr_song}.mp3'
 	# Load and play song
 	pygame.mixer.music.load(curr_song)
 	pygame.mixer.music.play(loops=0)
+
+	#Clear active bar in the playlist
+	List_of_songs.selection_clear(0, END)
+	
+	#Activate next song bar
+	List_of_songs.activate(next_one)
+	# Set Activate Bar to next song
+	List_of_songs.selection_set(next_one, last=None)
+
+
+
+# Play Previous Song In Playlist
+def previous_song():
+	# Get the current song tuple number
+	next_one = List_of_songs.curselection()
+	# Add one to the current song number
+	next_one = next_one[0]-1
+	# Get song title from the playlist
+	curr_song = List_of_songs.get(next_one)
+	# Add directory structure and mp3 to song title  
+	curr_song = f'D:/MP3_PLAYER/GUI/Music/{curr_song}.mp3'
+	# Load and play song
+	pygame.mixer.music.load(curr_song)
+	pygame.mixer.music.play(loops=0)
+
+	#Clear active bar in the playlist
+	List_of_songs.selection_clear(0, END)
+	
+	#Activate next song bar
+	List_of_songs.activate(next_one)
+	# Set Activate Bar to next song
+	List_of_songs.selection_set(next_one, last=None)
+
+
+
+# Pause and Unpause The Current Song
+global is_paused
+is_paused = False
+
+def pause_or_unpause(paused):
+	global is_paused
+	is_paused = paused
+	
+
+    
+	if paused:
+		pygame.mixer.music.unpause()
+		is_paused = False
+
+	else:
+		pygame.mixer.music.pause()
+		is_paused = True
 
 
 
@@ -62,27 +113,7 @@ def add_many_songs():
 		song=song.split('/')[-1].split('.')[0]
 
 		List_of_songs.insert(END, song)
-
-
-
-# Pause and Unpause The Current Song
-global is_paused
-is_paused = False
-
-def pause_or_unpause(paused):
-	global is_paused
-	is_paused = paused
-	
-
-    
-	if paused:
-		pygame.mixer.music.unpause()
-		is_paused = False
-
-	else:
-		pygame.mixer.music.pause()
-		is_paused = True
-    	
+ 	
 
 
 specify_font= font.Font(size=15)
@@ -104,7 +135,7 @@ controls_frame = Frame(root)
 controls_frame.pack(side=BOTTOM, padx=20, pady=30)
 
 # Create Player Control Buttons
-back_button = Button(controls_frame, image= back_btn_img, borderwidth=0)
+back_button = Button(controls_frame, image= back_btn_img, borderwidth=0, command= previous_song)
 forward_button = Button(controls_frame, image= forward_btn_img, borderwidth=0, command= next_song)
 play_button = Button(controls_frame, image= play_btn_img, borderwidth=0, command= play_the_song)
 pause_button = Button(controls_frame, image= pause_btn_img, borderwidth=0, command= lambda: pause_or_unpause(is_paused))
