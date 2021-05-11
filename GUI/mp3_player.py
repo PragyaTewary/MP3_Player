@@ -2,13 +2,47 @@ from tkinter import *
 import pygame
 from tkinter import filedialog
 from tkinter import font
+import time
+from mutagen.mp3 import MP3
 
 root = Tk()
 root.title('My MP3 Player')
-root.geometry("550x350")
+root.geometry("550x400")
 
 # Initialize Pygame Mixer
 pygame.mixer.init()
+
+
+#Get Song Length Time Information
+def play_time():
+	# Grab current song elapsed time
+	current_time = pygame.mixer.music.get_pos() /1000
+	
+	# Convert to time format
+	Converted_format = time.strftime('%M:%S', time.gmtime(current_time))
+
+	# Get song title from the playlist
+	current_song = List_of_songs.get(ACTIVE)
+	# Add directory structure and mp3 to song title  
+	current_song = f'D:/MP3_PLAYER/GUI/Music/{current_song}.mp3'
+
+	# Load song with Mutagen
+	song_mut = MP3(current_song)
+	# Get Song Length
+	song_length = song_mut.info.length
+	# Convert to time format
+	Converted_song_length = time.strftime('%M:%S', time.gmtime(song_length))
+
+
+	# Output time to status bar
+	status_bar.config(text=f'Time Elapsed: {Converted_format} of {Converted_song_length}  ')
+
+	# Update time
+	status_bar.after(1000, play_time)
+
+ 
+
+
 
 # Play selected song
 def play_the_song():
@@ -19,11 +53,20 @@ def play_the_song():
 	pygame.mixer.music.load(song)
 	pygame.mixer.music.play(loops=0)
 
+	#Call the play_time function to get song length
+	play_time()
+
+
+
 # Stop playing current song
 def stop_the_song():
 	pygame.mixer.music.stop()
 	List_of_songs.selection_clear(ACTIVE)
 
+	#Clear the Status Bar
+	status_bar.config(text='')
+
+	
 
 # Play the next song in the playlist
 def next_song():
@@ -80,8 +123,6 @@ is_paused = False
 def pause_or_unpause(paused):
 	global is_paused
 	is_paused = paused
-	
-
     
 	if paused:
 		pygame.mixer.music.unpause()
@@ -135,8 +176,8 @@ def remove_all_songs():
 specify_font= font.Font(size=15)
 
 #Create Playlist box
-List_of_songs = Listbox(root, bg="black", fg="blue" , width=200 , height=35)
-List_of_songs.pack(pady= 50)
+List_of_songs = Listbox(root, bg="black", fg="blue" , width=150 , height=25)
+List_of_songs.pack(pady= 40)
 
 # Define Player Control Buttons Images
 back_btn_img = PhotoImage(file = 'Images_buttons/back55.png')
@@ -182,6 +223,12 @@ my_menu.add_cascade(label = "Remove Songs", menu= remove_song_menu)
 remove_song_menu.add_command(label= "Delete a song from playlist", command= remove_a_song)
 # Remove Many Songs from the Playlist
 remove_song_menu.add_command(label= "Delete all songs from playlist", command= remove_all_songs)
+
+
+
+# Create Status Bar
+status_bar = Label(root, text='', bd=1, relief=GROOVE, anchor=E)
+status_bar.pack(fill=X, side=BOTTOM, ipady=3)
 
 
 root.mainloop()
