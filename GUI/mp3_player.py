@@ -4,6 +4,7 @@ from tkinter import filedialog
 from tkinter import font
 import time
 from mutagen.mp3 import MP3
+import tkinter.ttk as ttk
 
 root = Tk()
 root.title('My MP3 Player')
@@ -29,6 +30,7 @@ def play_time():
 	# Load song with Mutagen
 	song_mut = MP3(current_song)
 	# Get Song Length
+	global song_length
 	song_length = song_mut.info.length
 	# Convert to time format
 	Converted_song_length = time.strftime('%M:%S', time.gmtime(song_length))
@@ -37,6 +39,9 @@ def play_time():
 	# Output time to status bar
 	status_bar.config(text=f'Time Elapsed: {Converted_format} of {Converted_song_length}  ')
 
+	# Update slider position value to current song position
+	my_slider.config(value=int(current_time))
+	
 	# Update time
 	status_bar.after(1000, play_time)
 
@@ -55,6 +60,10 @@ def play_the_song():
 
 	#Call the play_time function to get song length
 	play_time()
+
+	#Update slider to position
+	slider_position = int(song_length)
+	my_slider.config(to=slider_position, value=0)
 
 
 
@@ -173,6 +182,12 @@ def remove_all_songs():
 	pygame.mixer.music.stop()
 
 
+# Create Slider function
+def Slider(x):
+	slider_label.config(text=f'{int(my_slider.get())} of {int(song_length)}')
+
+
+
 specify_font= font.Font(size=15)
 
 #Create Playlist box
@@ -229,6 +244,16 @@ remove_song_menu.add_command(label= "Delete all songs from playlist", command= r
 # Create Status Bar
 status_bar = Label(root, text='', bd=1, relief=GROOVE, anchor=E)
 status_bar.pack(fill=X, side=BOTTOM, ipady=3)
+
+
+# Create Music Position Slider
+my_slider = ttk.Scale(root, from_=0, to=100, orient=HORIZONTAL, value=0, command=Slider, length=450)
+my_slider.pack(pady=20)
+
+# Create temporary slider label
+slider_label = Label(root, text="0")
+slider_label.pack(pady=10)
+
 
 
 root.mainloop()
