@@ -16,9 +16,16 @@ pygame.mixer.init()
 
 #Get Song Length Time Information
 def play_time():
+
+	# Check for double timing
+	if stopped:
+		return
 	# Grab current song elapsed time
 	current_time = pygame.mixer.music.get_pos() /1000
 	
+	#throw up temporary label to get data
+	#slider_label.config(text=f'Slider:{int(my_slider.get())} and Song Pos: {int(current_time)}')
+
 	# Convert to time format
 	Converted_format = time.strftime('%M:%S', time.gmtime(current_time))
 
@@ -35,13 +42,38 @@ def play_time():
 	# Convert to time format
 	Converted_song_length = time.strftime('%M:%S', time.gmtime(song_length))
 
+	# Increase current time by 1 second
+	current_time += 1
 
-	# Output time to status bar
-	status_bar.config(text=f'Time Elapsed: {Converted_format} of {Converted_song_length}  ')
+	if int(my_slider.get()) == int(song_length):
+		status_bar.config(text=f'Time Elapsed: {Converted_song_length} of {Converted_song_length}  ')
+
+	elif is_paused:
+		pass
+
+	elif int(my_slider.get()) == int(current_time):
+		#Update slider to position
+		slider_position = int(song_length)
+		my_slider.config(to=slider_position, value=int(current_time))
+	else:
+		#Update slider to position
+		slider_position = int(song_length)	
+		my_slider.config(to=slider_position, value=int(my_slider.get()))
+
+		# Convert to time format
+		Converted_format = time.strftime('%M:%S', time.gmtime(int(my_slider.get())))
+
+		# Output time to status bar
+		status_bar.config(text=f'Time Elapsed: {Converted_format} of {Converted_song_length}  ')
+
+		# Move this thing along by one second
+		next_time = int(my_slider.get()) + 1
+		my_slider.config(value=next_time)
+
 
 	# Update slider position value to current song position
-	my_slider.config(value=int(current_time))
-	
+	#my_slider.config(value=int(current_time))
+
 	# Update time
 	status_bar.after(1000, play_time)
 
@@ -51,6 +83,9 @@ def play_time():
 
 # Play selected song
 def play_the_song():
+	# Set stopped variable to false so song can play
+	global stopped
+	stopped = False
 	song = List_of_songs.get(ACTIVE)
 	song = f'D:/MP3_PLAYER/GUI/Music/{song}.mp3'
 
@@ -62,23 +97,36 @@ def play_the_song():
 	play_time()
 
 	#Update slider to position
-	slider_position = int(song_length)
-	my_slider.config(to=slider_position, value=0)
+	#slider_position = int(song_length)
+	#my_slider.config(to=slider_position, value=0)
 
+# Stop playing current song
+global stopped
+stopped  = False
 
 
 # Stop playing current song
 def stop_the_song():
+	# Reset Slider and Status Bar
+	status_bar.config(text='')
+	my_slider.config(value=0)
+	# Stop song from playing
 	pygame.mixer.music.stop()
 	List_of_songs.selection_clear(ACTIVE)
 
-	#Clear the Status Bar
+	# Clear the Status Bar
 	status_bar.config(text='')
 
+	# Set stop variable to true
+	global stopped
+	stopped  = True
 	
 
 # Play the next song in the playlist
 def next_song():
+	# Reset Slider and Status Bar
+	status_bar.config(text='')
+	my_slider.config(value=0)
 	# Get the current song tuple number
 	next_one = List_of_songs.curselection()
 	# Add one to the current song number
@@ -103,6 +151,9 @@ def next_song():
 
 # Play Previous Song In Playlist
 def previous_song():
+	# Reset Slider and Status Bar
+	status_bar.config(text='')
+	my_slider.config(value=0)
 	# Get the current song tuple number
 	next_one = List_of_songs.curselection()
 	# Add one to the current song number
@@ -168,6 +219,7 @@ def add_many_songs():
 
 # Remove one song from the playlist
 def remove_a_song():
+	stop_the_song()
 	# Delete currently selected song
 	List_of_songs.delete(ANCHOR)
 	#Stop music if it's playing
@@ -176,6 +228,7 @@ def remove_a_song():
 
 # Remove all songs from the playlist
 def remove_all_songs():
+	stop_the_song()
 	# Delete all songs
 	List_of_songs.delete(0, END)
 	#Stop music if it's playing
@@ -184,8 +237,13 @@ def remove_all_songs():
 
 # Create Slider function
 def Slider(x):
-	slider_label.config(text=f'{int(my_slider.get())} of {int(song_length)}')
+	#slider_label.config(text=f'{int(my_slider.get())} of {int(song_length)}')
+	song = List_of_songs.get(ACTIVE)
+	song = f'D:/MP3_PLAYER/GUI/Music/{song}.mp3'
 
+
+	pygame.mixer.music.load(song)
+	pygame.mixer.music.play(loops=0, start= int(my_slider.get()))
 
 
 specify_font= font.Font(size=15)
@@ -251,8 +309,8 @@ my_slider = ttk.Scale(root, from_=0, to=100, orient=HORIZONTAL, value=0, command
 my_slider.pack(pady=20)
 
 # Create temporary slider label
-slider_label = Label(root, text="0")
-slider_label.pack(pady=10)
+#slider_label = Label(root, text="0")
+#slider_label.pack(pady=10)
 
 
 
