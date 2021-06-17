@@ -4,6 +4,7 @@ from tkinter import filedialog
 from tkinter import font
 import time
 from mutagen.mp3 import MP3
+from ShazamAPI import Shazam
 import tkinter.ttk as ttk
 
 root = Tk()
@@ -12,6 +13,33 @@ root.geometry("550x400")
 
 # Initialize Pygame Mixer
 pygame.mixer.init()
+
+
+def getDetails(fileloc, all=False):
+
+	content = open(fileloc,'rb').read()
+	shazam = Shazam(content)
+	gen = shazam.recognizeSong()
+	res = next(gen)
+	returnees=[]
+	if all:
+		return res
+
+	try:
+		returnees.append(res[1]["track"]["share"]["subject"])
+	except:
+		returnees.append("Title not found!")
+	try:
+		returnees.append(res[1]["track"]["sections"][1]['footer'])
+	except:
+		returnees.append("Details not found!")
+	try:
+		returnees.append(res[1]["track"]["sections"][1]["text"])
+	except:
+		returnees.append("Lyrics not found!")
+		
+
+
 
 
 #Get Song Length Time Information
@@ -78,17 +106,17 @@ def play_time():
 	status_bar.after(1000, play_time)
 
  
-
-
+global playing 
+playing = False 
 
 # Play selected song
 def play_the_song():
 	# Set stopped variable to false so song can play
 	global stopped
 	stopped = False
+	playing = True
 	song = List_of_songs.get(ACTIVE)
 	song = f'D:/MP3_PLAYER/GUI/Music/{song}.mp3'
-
 
 	pygame.mixer.music.load(song)
 	pygame.mixer.music.play(loops=0)
@@ -103,6 +131,19 @@ def play_the_song():
 	#Get current volume
 	#current_volume = pygame.mixer.music.get_volume()
 	#slider_label.config(text=current_volume*100)
+	
+
+	
+
+# To get the details of the song
+
+def getDetailsButton():
+	if playing == True :
+		song = List_of_songs.get(ACTIVE)
+		song = f'D:/MP3_PLAYER/GUI/Music/{song}.mp3'
+		getDetails(song)
+
+
 
 # Stop playing current song
 global stopped
@@ -259,6 +300,16 @@ def Volume(x):
 	#current_volume = pygame.mixer.music.get_volume()
 	#slider_label.config(text=current_volume*100)
 
+
+
+# Add background image
+bg = PhotoImage(file="Images_buttons/musicfbg.png") 
+
+# Add Label
+bg_label = Label(root, image=bg)
+bg_label.place(x=0, y=0, relwidth=1, relheight=1)
+
+
 # Create Master Frame
 master_frame = Frame(root)
 master_frame.pack(pady=20)
@@ -337,6 +388,8 @@ volume_slider.pack(pady=40)
 #slider_label = Label(root, text="0")
 #slider_label.pack(pady=10)
 
-
+#Add Button for details
+detailbutton = Button(root, text="Details", command=getDetailsButton())
+detailbutton.pack()
 
 root.mainloop()
