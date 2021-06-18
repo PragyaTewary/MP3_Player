@@ -37,6 +37,9 @@ def getDetails(fileloc, all=False):
 		returnees.append(res[1]["track"]["sections"][1]["text"])
 	except:
 		returnees.append("Lyrics not found!")
+
+	#print(returnees)
+	return returnees
 		
 
 
@@ -136,12 +139,16 @@ def play_the_song():
 	
 
 # To get the details of the song
+global list_details 
+list_details =[]
 
-def getDetailsButton():
+def getDetailsButton(is_playing):
+	global playing
+	playing = is_playing
 	if playing == True :
 		song = List_of_songs.get(ACTIVE)
-		song = f'D:/MP3_PLAYER/GUI/Music/{song}.mp3'
-		getDetails(song)
+		song = f'D:/MP3_PLAYER/GUI/Music/{song}.mp3'		
+		list_details = getDetails(song)
 
 
 
@@ -303,44 +310,74 @@ def Volume(x):
 
 
 # Add background image
-bg = PhotoImage(file="Images_buttons/musicfbg.png") 
+bg = PhotoImage(file="Images_buttons/newbg.png") 
+
 
 # Add Label
 bg_label = Label(root, image=bg)
 bg_label.place(x=0, y=0, relwidth=1, relheight=1)
 
 
-# Create Master Frame
-master_frame = Frame(root)
-master_frame.pack(pady=20)
+# Create Canvas
+#canvas1 = Canvas( root, width = 400, height = 400)
+#canvas1.pack(fill = "both", expand = True)
+  
+# Display image
+#canvas1.create_image( 0, 0, image = bg, anchor = "nw")
 
+# Add Text
+#canvas1.create_text( 200, 250, text = "Welcome")
+
+
+# Create Master Frame
+master_frame = Frame(root, bg="black")
+master_frame.pack(pady=10, padx=10)
+
+# Create Song Frames 
+song_frame = Frame(master_frame, bg="black")
+song_frame.grid(row=0, column=0)
+
+
+# Create Scrollbar for details
+#details_scroll = Scrollbar(song_frame, orient=VERTICAL)
 
 #Create Playlist box
-List_of_songs = Listbox(master_frame, bg="black", fg="blue" , width=150 , height=25)
+List_of_songs = Listbox(song_frame, bg="black", fg="#37a6bf" , width=75 , height=25)
 List_of_songs.grid(row=0, column=0)
 
+#Create Detail box
+Details_of_song = Listbox(song_frame, bg="black", fg="#37a6bf", width=75, height=25) #yscrollcommand=details_scroll.set)
+Details_of_song.grid(row=0, column=1)
+
+Details_of_song = list_details.copy()
+
+#Config Scrollbar
+#details_scroll.config(command= Details_of_song.yview)
+#details_scroll.pack(side=RIGHT, fill=Y)
+
+
 # Define Player Control Buttons Images
-back_btn_img = PhotoImage(file = 'Images_buttons/back55.png')
-forward_btn_img = PhotoImage(file = 'Images_buttons/forward55.png')
-play_btn_img = PhotoImage(file = 'Images_buttons/play55.png')
-pause_btn_img = PhotoImage(file = 'Images_buttons/pause55.png')
-stop_btn_img = PhotoImage(file = 'Images_buttons/stop55.png')
+back_btn_img = PhotoImage(file = 'Images_buttons/skip-back-button.png')
+forward_btn_img = PhotoImage(file = 'Images_buttons/fast-forward-button.png')
+play_btn_img = PhotoImage(file = 'Images_buttons/playbutton.png')
+pause_btn_img = PhotoImage(file = 'Images_buttons/video-pause-button.png')
+stop_btn_img = PhotoImage(file = 'Images_buttons/stop-button.png')
 
 
 # Create Player Control Frames 
-controls_frame = Frame(master_frame)
+controls_frame = Frame(master_frame, bg="black")
 controls_frame.grid(row=1, column=0, pady=30)
 
 # Create Volume Label Frame
-volume_frame = LabelFrame(master_frame, text="Volume")
-volume_frame.grid(row=0, column=1, padx = 40)
+volume_frame = LabelFrame(master_frame, bg="black", text="Volume", foreground="white")
+volume_frame.grid(row=0, column=1, padx = 10)
 
 # Create Player Control Buttons
-back_button = Button(controls_frame, image= back_btn_img, borderwidth=0, command= previous_song)
-forward_button = Button(controls_frame, image= forward_btn_img, borderwidth=0, command= next_song)
-play_button = Button(controls_frame, image= play_btn_img, borderwidth=0, command= play_the_song)
-pause_button = Button(controls_frame, image= pause_btn_img, borderwidth=0, command= lambda: pause_or_unpause(is_paused))
-stop_button = Button(controls_frame, image= stop_btn_img, borderwidth=0, command= stop_the_song)
+back_button = Button(controls_frame, background= "black" , image= back_btn_img, borderwidth=0, command= previous_song)
+forward_button = Button(controls_frame, background= "black" , image= forward_btn_img, borderwidth=0, command= next_song)
+play_button = Button(controls_frame, background= "black" , image= play_btn_img, borderwidth=0, command= play_the_song)
+pause_button = Button(controls_frame, background= "black" , image= pause_btn_img, borderwidth=0, command= lambda: pause_or_unpause(is_paused))
+stop_button = Button(controls_frame, background= "black" , image= stop_btn_img, borderwidth=0, command= stop_the_song)
 
 back_button.grid(row=0, column=0, padx=10)
 forward_button.grid(row=0, column=1, padx=10)
@@ -389,7 +426,7 @@ volume_slider.pack(pady=40)
 #slider_label.pack(pady=10)
 
 #Add Button for details
-detailbutton = Button(root, text="Details", command=getDetailsButton())
+detailbutton = Button(root, text="Details", font="operetta", background="white", pady=10, padx=10, foreground= "black",  command= lambda: getDetailsButton(playing))
 detailbutton.pack()
 
 root.mainloop()
