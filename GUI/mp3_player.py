@@ -15,36 +15,6 @@ root.geometry("550x400")
 pygame.mixer.init()
 
 
-def getDetails(fileloc, all=False):
-
-	content = open(fileloc,'rb').read()
-	shazam = Shazam(content)
-	gen = shazam.recognizeSong()
-	res = next(gen)
-	returnees=[]
-	if all:
-		return res
-
-	try:
-		returnees.append(res[1]["track"]["share"]["subject"])
-	except:
-		returnees.append("Title not found!")
-	try:
-		returnees.append(res[1]["track"]["sections"][1]['footer'])
-	except:
-		returnees.append("Details not found!")
-	try:
-		returnees.append(res[1]["track"]["sections"][1]["text"])
-	except:
-		returnees.append("Lyrics not found!")
-
-	#print(returnees)
-	return returnees
-		
-
-
-
-
 #Get Song Length Time Information
 def play_time():
 
@@ -116,6 +86,7 @@ playing = False
 def play_the_song():
 	# Set stopped variable to false so song can play
 	global stopped
+	global playing 
 	stopped = False
 	playing = True
 	song = List_of_songs.get(ACTIVE)
@@ -135,22 +106,6 @@ def play_the_song():
 	#current_volume = pygame.mixer.music.get_volume()
 	#slider_label.config(text=current_volume*100)
 	
-
-	
-
-# To get the details of the song
-global list_details 
-list_details =[]
-
-def getDetailsButton(is_playing):
-	global playing
-	playing = is_playing
-	if playing == True :
-		song = List_of_songs.get(ACTIVE)
-		song = f'D:/MP3_PLAYER/GUI/Music/{song}.mp3'		
-		list_details = getDetails(song)
-
-
 
 # Stop playing current song
 global stopped
@@ -308,6 +263,61 @@ def Volume(x):
 	#slider_label.config(text=current_volume*100)
 
 
+def getDetails(fileloc, all=False):
+
+	content = open(fileloc,'rb').read()
+	shazam = Shazam(content)
+	gen = shazam.recognizeSong()
+	res = next(gen)
+	returnees=[]
+	if all:
+		return res
+	
+	try:
+		returnees.append(res[1]["track"]["share"]["subject"])
+	except:
+		returnees.append("Title not found!")
+	try:
+		returnees.append(res[1]["track"]["sections"][1]['footer'])
+	except:
+		returnees.append("Details not found!")
+	try:
+		returnees.append(res[1]["track"]["sections"][1]["text"])
+	except:
+		returnees.append("Lyrics not found!")
+
+	try:
+		Details_of_song.insert(1, res[1]["track"]["share"]["subject"])
+	except:
+		Details_of_song.insert(1, "Title not found!")
+	try:
+		Details_of_song.insert(2, res[1]["track"]["sections"][1]['footer'])
+	except:
+		Details_of_song.insert(2, "Details not found!")
+	try:
+		Details_of_song.insert(3, res[1]["track"]["sections"][1]["text"])
+	except:
+		Details_of_song.insert(3, "Lyrics not found!")
+
+
+	#print(returnees)
+	#return returnees
+
+
+
+# To get the details of the song
+global list_details 
+list_details =[]
+
+def getDetailsButton(is_playing):
+	global playing
+	playing = is_playing
+	if playing == True :
+		Details_of_song.delete(0, 'end')
+		song = List_of_songs.get(ACTIVE)
+		song = f'D:/MP3_PLAYER/GUI/Music/{song}.mp3'		
+		list_details = getDetails(song)
+
 
 # Add background image
 bg = PhotoImage(file="Images_buttons/newbg.png") 
@@ -330,7 +340,7 @@ bg_label.place(x=0, y=0, relwidth=1, relheight=1)
 
 
 # Create Master Frame
-master_frame = Frame(root, bg="black")
+master_frame = Frame(root, bg="black", height=250, width=100)
 master_frame.pack(pady=10, padx=10)
 
 # Create Song Frames 
@@ -339,21 +349,22 @@ song_frame.grid(row=0, column=0)
 
 
 # Create Scrollbar for details
-#details_scroll = Scrollbar(song_frame, orient=VERTICAL)
+details_scroll = Scrollbar(song_frame, orient=VERTICAL)
 
 #Create Playlist box
 List_of_songs = Listbox(song_frame, bg="black", fg="#37a6bf" , width=75 , height=25)
 List_of_songs.grid(row=0, column=0)
 
 #Create Detail box
-Details_of_song = Listbox(song_frame, bg="black", fg="#37a6bf", width=75, height=25) #yscrollcommand=details_scroll.set)
+Details_of_song = Listbox(song_frame, bg="black", fg="#37a6bf", width=75, height=25, yscrollcommand=details_scroll.set)
 Details_of_song.grid(row=0, column=1)
 
-Details_of_song = list_details.copy()
+#Details_of_song = list_details.copy()
 
 #Config Scrollbar
-#details_scroll.config(command= Details_of_song.yview)
+details_scroll.config(command= Details_of_song.yview)
 #details_scroll.pack(side=RIGHT, fill=Y)
+details_scroll.grid(row=0, column=2)
 
 
 # Define Player Control Buttons Images
