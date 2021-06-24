@@ -264,7 +264,6 @@ def Volume(x):
 
 
 def getDetails(fileloc, all=False):
-
 	content = open(fileloc,'rb').read()
 	shazam = Shazam(content)
 	gen = shazam.recognizeSong()
@@ -273,36 +272,24 @@ def getDetails(fileloc, all=False):
 	if all:
 		return res
 	
-	try:
-		returnees.append(res[1]["track"]["share"]["subject"])
-	except:
-		returnees.append("Title not found!")
-	try:
-		returnees.append(res[1]["track"]["sections"][1]['footer'])
-	except:
-		returnees.append("Details not found!")
-	try:
-		returnees.append(res[1]["track"]["sections"][1]["text"])
-	except:
-		returnees.append("Lyrics not found!")
+	
 
 	try:
 		Details_of_song.insert(1, res[1]["track"]["share"]["subject"])
 	except:
 		Details_of_song.insert(1, "Title not found!")
 	try:
-		Details_of_song.insert(2, res[1]["track"]["sections"][1]['footer'])
+		Details_of_song.insert(2, res[1]["track"]["sections"][1]['footer'].split(maxsplit = 6))
 	except:
 		Details_of_song.insert(2, "Details not found!")
 	try:
-		Details_of_song.insert(3, res[1]["track"]["sections"][1]["text"])
+		Details_of_song.insert(3, "Lyrics: ")
+		i = 4
+		for lines in res[1]["track"]["sections"][1]["text"]:
+			Details_of_song.insert(i, lines)
+			i += 1
 	except:
 		Details_of_song.insert(3, "Lyrics not found!")
-
-
-	#print(returnees)
-	#return returnees
-
 
 
 # To get the details of the song
